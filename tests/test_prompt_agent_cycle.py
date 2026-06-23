@@ -31,7 +31,7 @@ def test_prompt_agent_cycle_runs(tmp_path: Path) -> None:
     )
 
     adapter = PromptAgentAdapter(corpus_path=corpus_path, artifact_root=artifact_root, output_dir=tmp_path / "output")
-    engine = EvolutionEngine(adapter, EngineConfig(adapter_name="prompt-agent", dry_run=True))
+    engine = EvolutionEngine(adapter, EngineConfig(adapter_name="prompt-agent", dry_run=True, output_dir=str(tmp_path / "output")))
     report = asyncio.run(engine.run_cycle())
 
     assert report.total_cases == 1

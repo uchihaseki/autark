@@ -109,6 +109,16 @@ class ValidationDecision:
 
 
 @dataclass(slots=True)
+class EvalReport:
+    cycle_id: str
+    adapter_name: str
+    total_cases: int
+    failures: int
+    signals_extracted: int
+    errors: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
 class CycleReport:
     cycle_id: str
     adapter_name: str

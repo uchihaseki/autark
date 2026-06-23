@@ -40,7 +40,10 @@ class PromptAgentAdapter:
                 raise ValueError("proposer_command is required for external-command proposer")
             return ExternalCommandProposer(proposer_command, timeout=proposer_timeout)
         if proposer_name == "claude-code":
-            return ClaudeCodeProposer()
+            return ClaudeCodeProposer(
+                claude_command=proposer_command or "claude",
+                timeout=proposer_timeout,
+            )
         return DeterministicProposer()
 
     def case_provider(self) -> PromptCaseProvider:
