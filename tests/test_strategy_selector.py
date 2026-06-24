@@ -10,7 +10,11 @@ def test_strategy_selector_matches_by_category_and_regex() -> None:
         Strategy(strategy_id="s2", name="harden", category="harden", signals_match=["empty_output"], instructions=[]),
     ]
     selector = RegexStrategySelector(strategies)
-    signal = Signal(signal_id="sig-1", case_id="case-1", artifact_id="prompt.txt", signal_type="repair", category="wrong_answer", evidence="expected answer missing", scores={"overall": 0.1})
+    signal = Signal(
+        signal_id="sig-1", case_id="case-1", artifact_id="prompt.txt",
+        signal_type="repair", category="wrong_answer",
+        evidence="expected answer missing", scores={"overall": 0.1},
+    )
 
     selected = selector.select(signal)
 

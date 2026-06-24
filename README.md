@@ -1,5 +1,9 @@
 # AUTARK
 
+[![CI](https://github.com/uchihaseki/autark/actions/workflows/ci.yml/badge.svg)](https://github.com/uchihaseki/autark/actions)
+[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 AUTARK (Autonomous-Turing Adaptive Reinforcement Kernel) is a framework for safe, auditable agent self-improvement.
 
 It helps teams run agent cases, evaluate behavior, extract failure signals, select improvement strategies, propose artifact changes, validate them against regressions, and keep an audit trail for every cycle.
