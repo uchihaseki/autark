@@ -20,7 +20,7 @@ Agent systems often improve through scattered prompt edits, ad hoc evals, and ma
 
 ## Current Status
 
-AUTARK is currently an early `0.1.0` MVP. The first runnable path is a dependency-light prompt-agent demo that does not require AutoRTD, RTD business logic, `SKILL.md`, or an external LLM provider.
+AUTARK is currently an early `0.2.0` release. The first runnable path is a dependency-light prompt-agent demo that does not require AutoRTD, RTD business logic, `SKILL.md`, or an external LLM provider.
 
 The core APIs are useful but still evolving. Expect breaking changes before `1.0.0`.
 
@@ -29,7 +29,7 @@ The core APIs are useful but still evolving. Expect breaking changes before `1.0
 ```bash
 git clone <your-autark-repo-url>
 cd autark
-python -m pip install -e ".[dev]"
+python -m pip install ".[dev]"
 PYTHONPATH=src python -m autark.cli.main run \
   --adapter prompt-agent \
   --corpus examples/prompt_agent/cases.json \
@@ -148,7 +148,7 @@ See `docs/external-proposer-contract.md` for the contract and safety expectation
 ## Development
 
 ```bash
-python -m pip install -e ".[dev]"
+python -m pip install ".[dev]"
 PYTHONPATH=src pytest -q
 ```
 

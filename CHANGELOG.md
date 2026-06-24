@@ -4,7 +4,7 @@ All notable changes to AUTARK will be documented in this file.
 
 The project follows semantic versioning once the public API stabilizes. Before `1.0.0`, protocol and CLI changes may still be breaking.
 
-## Unreleased
+## 0.2.0 (2026-06-24)
 
 - Added open-source readiness documentation and GitHub project templates.
 - Added quickstart, core concepts, adapter guide, and external proposer contract docs.
