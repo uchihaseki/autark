@@ -115,11 +115,11 @@ Deliverables:
 - ✅ Add a concise architecture diagram (Chinese overview doc).
 - ✅ Add `LICENSE` (MIT).
 - ✅ Add `CONTRIBUTING.md`.
-- [ ] Add `CODE_OF_CONDUCT.md` if community contribution is expected.
+- [x] Add `CODE_OF_CONDUCT.md` if community contribution is expected.
 - ✅ Add `SECURITY.md` for vulnerability reporting and safe-use boundaries.
 - ✅ Add GitHub issue templates (bug report, feature request, adapter proposal).
 - ✅ Add PR template with testing checklist.
-- [ ] Add badges after CI is available (tests, package version, Python versions, license).
+- [x] Add badges after CI is available (tests, package version, Python versions, license).
 
 ### Phase 1 — Reliable MVP ✅ **DONE**
 
@@ -127,10 +127,10 @@ Goal: make the existing prompt-agent path robust enough that users can clone the
 
 Deliverables:
 
-- ✅ `pytest -q` passes (31 tests).
+- ✅ `pytest -q` passes (83 tests).
 - ✅ CI config for Python 3.10, 3.11, and 3.12 (`.github/workflows/ci.yml`).
-- [ ] Type checking with `mypy` or `pyright`.
-- [ ] Formatting/linting with `ruff`.
+- ✅ Type checking with `mypy`.
+- ✅ Formatting/linting with `ruff`.
 - ✅ Generated files (`.autark/output`, caches, egg-info) are ignored in `.gitignore`.
 - ✅ Integration test that runs the prompt-agent demo end-to-end.
 
@@ -155,17 +155,17 @@ Goal: make AUTARK easy to extend without reading all internals.
 Deliverables:
 
 - ✅ Protocol interfaces defined and documented in adapter guide.
-- [ ] Adapter template under `examples/adapter_template/`.
-- [ ] Tests that third-party adapters can copy.
+- ✅ Adapter template under `examples/adapter_template/`.
+- ✅ Tests that third-party adapters can copy.
 - ✅ Serialization formats for cases, eval results, signals, strategies, candidate changes, validation decisions, cycle reports (used in engine state persistence).
-- [ ] Schema docs and JSON Schema files under `schemas/`.
+- ✅ Schema docs and JSON Schema files under `schemas/`.
 
 Important design decisions:
 
-- [ ] Decide which objects are stable public API for `0.2.x`.
+- ✅ `0.2.x` public API defined (protocols, models, CLI).
 - [ ] Keep experimental APIs clearly marked.
 - ✅ Avoid provider-specific dependencies in the default install.
-- [ ] Use extras for integrations (`autark[anthropic]`, `autark[dev]`).
+- [x] Use extras for integrations (`autark[anthropic]`, `autark[dev]`).
 - ✅ `autark[dev]` extra exists.
 
 ### Phase 3 — Stronger Evaluation and Validation
@@ -325,7 +325,7 @@ Review checklist for new integrations:
 4. ✅ Add GitHub Actions CI.
 5. ✅ Add `docs/quickstart.md` and `docs/adapter-guide.md`.
 6. [ ] Publish to PyPI (TestPyPI first).
-7. [ ] Add `CODE_OF_CONDUCT.md`.
+7. ✅ Add `CODE_OF_CONDUCT.md`.
 
 ### Medium Priority
 
@@ -384,14 +384,15 @@ SECURITY.md
 
 - ✅ A new user can understand the project from the README in under five minutes.
 - ✅ A new user can run the demo in under ten minutes.
-- [ ] CI runs tests on supported Python versions (config ready, needs GitHub push to verify).
+- ✅ CI runs tests on supported Python versions, plus lint (ruff) and type-check (mypy).
 - ✅ The public extension interfaces are documented.
-- [ ] At least two non-trivial examples exist (currently: prompt-agent demo).
+- ✅ At least two non-trivial examples exist (prompt-agent, shell_proposer, adapter_template).
 - ✅ Dry-run and commit behavior are obvious and safe.
 - ✅ Proposals and validation decisions are auditable.
-- The core has no domain-specific leakage.
-- The package can be installed cleanly.
-- Release notes and compatibility expectations are clear.
+- ✅ Phase 0 (repository hygiene) and Phase 1 (reliable MVP) are fully complete.
+- ✅ Phase 2 (public API, extension model) is substantially complete — schema files, adapter template, extras, and dev tooling in place.
+- [ ] Package can be installed from PyPI.
+- [ ] Release notes and compatibility expectations are clear.
 
 ## Success Metrics
 
