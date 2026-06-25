@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/shuo/autark/schemas/eval_result.json",
+  "title": "EvalResult",
+  "description": "The scored result of evaluating one agent run against one case.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["case_id", "artifact_id"],
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "description": "The case that was evaluated."
+    },
+    "artifact_id": {
+      "type": "string",
+      "description": "The artifact (e.g. prompt, policy) used during the run."
+    },
+    "status": {
+      "type": "string",
+      "description": "Outcome: 'pass' or 'fail'.",
+      "default": ""
+    },
+    "scores": {
+      "type": "object",
+      "description": "Dimension scores including at least an 'overall' key.",
+      "additionalProperties": {"type": "number"},
+      "default": {}
+    },
+    "failure_category": {
+      "type": "string",
+      "description": "Category of failure when status is 'fail'.",
+      "default": ""
+    },
+    "evidence": {
+      "type": "string",
+      "description": "Evidence or explanation for the failure.",
+      "default": ""
+    },
+    "trajectory_summary": {
+      "type": "string",
+      "description": "Summary of the agent's trajectory during the run.",
+      "default": ""
+    },
+    "grade": {
+      "type": "string",
+      "description": "Letter grade (A/B/C).",
+      "default": ""
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary metadata.",
+      "default": {}
+    }
+  }
+}

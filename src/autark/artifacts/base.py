@@ -3,9 +3,11 @@ from __future__ import annotations
 from dataclasses import replace
 from uuid import uuid4
 
+from autark.core.api import public_api
 from autark.core.models import ArtifactRevision, CandidateChange
 
 
+@public_api(since="0.2.0")
 def apply_text_operations(content: str, operations: list[dict]) -> str:
     updated = content
     for operation in operations:
@@ -22,6 +24,7 @@ def apply_text_operations(content: str, operations: list[dict]) -> str:
     return updated
 
 
+@public_api(since="0.2.0")
 class InMemoryArtifactStore:
     def __init__(self, artifacts: dict[str, str] | None = None) -> None:
         self.artifacts = artifacts or {}

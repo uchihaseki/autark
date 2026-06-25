@@ -3,9 +3,11 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from uuid import uuid4
 
+from autark.core.api import public_api
 from autark.core.models import EvalResult, Signal
 
 
+@public_api(since="0.2.0")
 class ThresholdSignalExtractor:
     def __init__(
         self,

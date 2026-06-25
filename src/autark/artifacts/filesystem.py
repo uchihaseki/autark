@@ -4,9 +4,11 @@ from pathlib import Path
 from uuid import uuid4
 
 from autark.artifacts.base import apply_text_operations
+from autark.core.api import public_api
 from autark.core.models import ArtifactRevision, CandidateChange
 
 
+@public_api(since="0.2.0")
 class FileArtifactStore:
     def __init__(self, root: str | Path) -> None:
         self.root = Path(root).resolve()

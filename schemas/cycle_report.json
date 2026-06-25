@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/shuo/autark/schemas/cycle_report.json",
+  "title": "CycleReport",
+  "description": "A summary report for one complete evolution cycle.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["cycle_id", "adapter_name", "total_cases", "failures", "signals_extracted", "strategies_selected", "changes_accepted", "changes_rejected"],
+  "properties": {
+    "cycle_id": {
+      "type": "string",
+      "description": "Unique identifier for this cycle."
+    },
+    "adapter_name": {
+      "type": "string",
+      "description": "Name of the adapter that ran this cycle."
+    },
+    "total_cases": {
+      "type": "integer",
+      "description": "Total number of cases evaluated."
+    },
+    "failures": {
+      "type": "integer",
+      "description": "Number of cases that failed."
+    },
+    "signals_extracted": {
+      "type": "integer",
+      "description": "Number of failure signals extracted."
+    },
+    "strategies_selected": {
+      "type": "integer",
+      "description": "Number of strategies selected for repair."
+    },
+    "changes_accepted": {
+      "type": "integer",
+      "description": "Number of changes accepted after validation."
+    },
+    "changes_rejected": {
+      "type": "integer",
+      "description": "Number of changes rejected."
+    },
+    "artifacts_modified": {
+      "type": "array",
+      "description": "IDs of artifacts that were modified.",
+      "items": {"type": "string"},
+      "default": []
+    },
+    "errors": {
+      "type": "array",
+      "description": "Errors encountered during the cycle.",
+      "items": {"type": "string"},
+      "default": []
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary metadata.",
+      "default": {}
+    }
+  }
+}

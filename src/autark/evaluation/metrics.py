@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+from autark.core.api import public_api
 
+
+@public_api(since="0.2.0")
 def weighted_overall(scores: dict[str, float], weights: dict[str, float]) -> float:
     if not weights:
         return scores.get("overall", 0.0)
@@ -9,6 +12,7 @@ def weighted_overall(scores: dict[str, float], weights: dict[str, float]) -> flo
     return round(total / total_weight, 4)
 
 
+@public_api(since="0.2.0")
 def grade_from_score(overall: float) -> str:
     if overall >= 0.8:
         return "A"

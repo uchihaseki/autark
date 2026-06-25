@@ -147,3 +147,140 @@ change = {
 
 print(json.dumps(change))
 ```
+
+## Testing Your External Proposer
+
+### Manual Validation
+
+Before wiring the proposer into a full AUTARK cycle, validate it manually:
+
+```bash
+# Construct a test payload and pipe it to your proposer
+python3 -c "
+import json
+payload = {
+    'signal': {
+        'signal_id': 'sig-001',
+        'case_id': 'case-001',
+        'artifact_id': 'prompt.txt',
+        'category': 'wrong_answer',
+        'evidence': 'Expected 5, got 3',
+        'scores': {'overall': 0.2}
+    },
+    'strategy': {
+        'strategy_id': 'strat-001',
+        'name': 'Repair Wrong Answer',
+        'instructions': ['Fix the prompt.'],
+        'validation': ['Rerun cases.']
+    },
+    'artifact': {
+        'artifact_id': 'prompt.txt',
+        'content': 'You are a helpful assistant.'
+    },
+    'context': {
+        'cycle_id': 'test-cycle',
+        'failing_cases': [],
+        'holdout_cases': []
+    }
+}
+print(json.dumps(payload))
+" | python your_proposer.py | python -m json.tool
+```
+
+The output must be valid JSON with at minimum `artifact_id` and `operations` fields.
+
+### Dry-Run Test
+
+Run a full AUTARK cycle in dry-run mode:
+
+```bash
+PYTHONPATH=src python -m autark.cli.main run \
+  --adapter prompt-agent \
+  --corpus examples/prompt_agent/cases.json \
+  --artifact-root examples/prompt_agent/artifacts \
+  --proposer external-command \
+  --proposer-command "python your_proposer.py" \
+  --output-dir .autark/output
+```
+
+Dry-run means no artifacts are actually modified. Check `.autark/output/decisions.json`
+to see validation results.
+
+### Automated Test
+
+Write a pytest that exercises the JSON contract:
+
+```python
+import sys
+import json
+import subprocess
+from autark.proposers import ExternalCommandProposer
+
+# Build test fixtures (signal, strategy, artifact, context)
+# ...
+
+proposer = ExternalCommandProposer(f"{sys.executable} your_proposer.py", timeout=10)
+change = proposer.propose(signal, strategy, artifact, context)
+
+assert change.artifact_id == "prompt.txt"
+assert len(change.operations) >= 1
+assert change.operations[0]["operation"] in {"append", "replace"}
+```
+
+## Troubleshooting
+
+### JSON Parse Error
+
+If AUTARK reports "could not parse JSON from output", your proposer may be
+outputting extra text before or after the JSON object. Ensure:
+
+- Your proposer prints **only** the JSON object to stdout
+- Debug messages go to stderr (e.g., `print("debug", file=sys.stderr)`)
+- No trailing commas in JSON output
+- Strings are properly escaped
+
+### Timeout
+
+If the proposer times out, increase the timeout:
+
+```bash
+autark run --proposer-timeout 600 ...
+```
+
+Or optimize the proposer to return faster (reduce model calls, simplify logic).
+
+### Exit Code Non-Zero
+
+A non-zero exit code means the proposer failed. AUTARK reports the stderr.
+Common causes:
+
+- Missing Python dependencies in the proposer script
+- Permission errors when reading/writing files
+- Shell script syntax errors (use `bash -x proposer.sh` to debug)
+
+### Proposer Command Not Found
+
+If you see "CLI not found", verify the command is executable:
+
+```bash
+which python  # or the command you're using
+chmod +x your_proposer.sh  # if using a shell script
+```
+
+Use an absolute path to the proposer script if relative paths don't work.
+
+## Shell Script Example
+
+See `examples/shell_proposer/proposer.sh` for a complete bash implementation
+that reads JSON from stdin and outputs a `CandidateChange` to stdout.
+
+## Key Constraints
+
+External proposers must follow these rules to work correctly with AUTARK:
+
+1. **Read from stdin, write to stdout** — no files, no network (unless configured)
+2. **Exit code 0 on success** — anything else is treated as failure
+3. **Output valid JSON only** — no logging, no progress bars on stdout
+4. **Include `after_scores` in metadata** — used by MetadataScoreValidationGate
+5. **Include `signal_id` in metadata** — used by the engine to match changes to cases
+6. **Fail closed when uncertain** — return an error exit code rather than a low-quality change

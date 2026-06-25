@@ -30,11 +30,31 @@ The core APIs are useful but still evolving. Expect breaking changes before `1.0
 
 ## Quick Start
 
+### From Source
+
 ```bash
-git clone <your-autark-repo-url>
+git clone https://github.com/uchihaseki/autark.git
 cd autark
-python -m pip install ".[dev]"
-PYTHONPATH=src python -m autark.cli.main run \
+pip install -e ".[dev]"
+autark run \
+  --adapter prompt-agent \
+  --corpus examples/prompt_agent/cases.json \
+  --artifact-root examples/prompt_agent/artifacts \
+  --output-dir .autark/output
+```
+
+### From TestPyPI
+
+```bash
+pip install --index-url https://test.pypi.org/simple/ autark
+```
+
+This installs the `autark` CLI. To run the demo you'll also need the example files — clone the repo for those:
+
+```bash
+git clone https://github.com/uchihaseki/autark.git
+cd autark
+autark run \
   --adapter prompt-agent \
   --corpus examples/prompt_agent/cases.json \
   --artifact-root examples/prompt_agent/artifacts \
@@ -46,7 +66,7 @@ The default behavior is dry-run: accepted changes are staged and validated, but 
 Use `--json` when scripts or CI need the machine-readable cycle report:
 
 ```bash
-PYTHONPATH=src python -m autark.cli.main run \
+autark run \
   --adapter prompt-agent \
   --corpus examples/prompt_agent/cases.json \
   --artifact-root examples/prompt_agent/artifacts \
@@ -57,7 +77,7 @@ PYTHONPATH=src python -m autark.cli.main run \
 To commit accepted artifact revisions, pass `--commit` explicitly:
 
 ```bash
-PYTHONPATH=src python -m autark.cli.main run \
+autark run \
   --adapter prompt-agent \
   --corpus examples/prompt_agent/cases.json \
   --artifact-root examples/prompt_agent/artifacts \

@@ -3,7 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from autark.core.api import public_api
 
+
+@public_api(since="0.2.0")
 @dataclass(slots=True)
 class EvalCase:
     case_id: str
@@ -12,6 +15,7 @@ class EvalCase:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@public_api(since="0.2.0")
 @dataclass(slots=True)
 class RunResult:
     case_id: str
@@ -22,6 +26,7 @@ class RunResult:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@public_api(since="0.2.0")
 @dataclass(slots=True)
 class EvalResult:
     case_id: str
@@ -35,6 +40,7 @@ class EvalResult:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@public_api(since="0.2.0")
 @dataclass(slots=True)
 class Signal:
     signal_id: str
@@ -47,6 +53,7 @@ class Signal:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@public_api(since="0.2.0")
 @dataclass(slots=True)
 class Strategy:
     strategy_id: str
@@ -60,6 +67,7 @@ class Strategy:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@public_api(since="0.2.0")
 @dataclass(slots=True)
 class ArtifactSnapshot:
     artifact_id: str
@@ -67,6 +75,7 @@ class ArtifactSnapshot:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@public_api(since="0.2.0")
 @dataclass(slots=True)
 class EvolutionContext:
     cycle_id: str
@@ -76,6 +85,7 @@ class EvolutionContext:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@public_api(since="0.2.0")
 @dataclass(slots=True)
 class CandidateChange:
     change_id: str
@@ -86,6 +96,7 @@ class CandidateChange:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@public_api(since="0.2.0")
 @dataclass(slots=True)
 class ArtifactRevision:
     revision_id: str
@@ -96,6 +107,7 @@ class ArtifactRevision:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@public_api(since="0.2.0")
 @dataclass(slots=True)
 class ValidationDecision:
     decision: str
@@ -108,6 +120,7 @@ class ValidationDecision:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@public_api(since="0.2.0")
 @dataclass(slots=True)
 class EvalReport:
     cycle_id: str
@@ -118,6 +131,7 @@ class EvalReport:
     errors: list[str] = field(default_factory=list)
 
 
+@public_api(since="0.2.0")
 @dataclass(slots=True)
 class CycleReport:
     cycle_id: str

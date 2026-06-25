@@ -1,3 +1,4 @@
+from autark.core.api import public_api
 from autark.core.engine import EngineConfig, EvolutionEngine
 from autark.core.models import (
     ArtifactRevision,
@@ -23,6 +24,7 @@ __all__ = [
     "EvalResult",
     "EvolutionContext",
     "EvolutionEngine",
+    "public_api",
     "RunResult",
     "Signal",
     "Strategy",

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/shuo/autark/schemas/eval_case.json",
+  "title": "EvalCase",
+  "description": "A single evaluation case: input text with expected output and optional constraints.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["case_id", "input_text"],
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "description": "Unique identifier for this case."
+    },
+    "input_text": {
+      "type": "string",
+      "description": "The input provided to the agent under test."
+    },
+    "expected_output": {
+      "type": "string",
+      "description": "The expected output or criteria for a correct response.",
+      "default": ""
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary metadata attached to the case.",
+      "default": {}
+    }
+  }
+}

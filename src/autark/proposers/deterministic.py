@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import json
 import subprocess
+from collections.abc import Callable
 from dataclasses import asdict
 from pathlib import Path
 from uuid import uuid4
 
+from autark.core.api import public_api
 from autark.core.models import ArtifactSnapshot, CandidateChange, EvolutionContext, Signal, Strategy
 
 
+@public_api(since="0.2.0")
 class DeterministicProposer:
     def propose(
         self,
@@ -34,6 +37,19 @@ class DeterministicProposer:
             },
         )
 
+    def propose_multi(
+        self,
+        signals: list[Signal],
+        strategies: list[Strategy],
+        artifact: ArtifactSnapshot,
+        context: EvolutionContext,
+    ) -> list[CandidateChange]:
+        """Generate one change per signal, preserving per-signal metadata."""
+        changes = []
+        for signal, strategy in zip(signals, strategies):
+            changes.append(self.propose(signal, strategy, artifact, context))
+        return changes
+
 
 def _instruction_for(category: str) -> str:
     if category == "wrong_answer":
@@ -49,6 +65,7 @@ def _instruction_for(category: str) -> str:
     return "Improve the artifact to satisfy the failing case while preserving existing behavior."
 
 
+@public_api(since="0.2.0")
 class ExternalCommandProposer:
     def __init__(self, command: str, timeout: float = 120.0) -> None:
         self.command = command
@@ -87,6 +104,7 @@ class ExternalCommandProposer:
         )
 
 
+@public_api(since="0.2.0")
 class ClaudeCodeProposer:
     """Proposer that delegates to the Claude Code CLI.
 
@@ -276,3 +294,30 @@ class ClaudeCodeProposer:
                 "strategy_id": strategy.strategy_id,
             },
         )
+
+
+@public_api(since="0.3.0", experimental=True)
+class PythonFunctionProposer:
+    """Proposer that wraps a user-provided Python callable.
+
+    Args:
+        propose_fn: A callable ``(Signal, Strategy, ArtifactSnapshot, EvolutionContext)
+            -> CandidateChange``.
+    """
+
+    def __init__(
+        self,
+        propose_fn: Callable[
+            [Signal, Strategy, ArtifactSnapshot, EvolutionContext], CandidateChange
+        ],
+    ) -> None:
+        self._propose_fn = propose_fn
+
+    def propose(
+        self,
+        signal: Signal,
+        strategy: Strategy,
+        artifact: ArtifactSnapshot,
+        context: EvolutionContext,
+    ) -> CandidateChange:
+        return self._propose_fn(signal, strategy, artifact, context)

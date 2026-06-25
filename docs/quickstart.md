@@ -1,5 +1,7 @@
 # Quickstart
 
+> 中文版：[快速开始](quickstart-zh.md)
+
 This guide runs AUTARK's dependency-light prompt-agent demo from a local checkout.
 
 ## Requirements
@@ -13,17 +15,17 @@ The current demo does not require an external LLM provider.
 ## Install
 
 ```bash
-git clone <your-autark-repo-url>
+git clone https://github.com/uchihaseki/autark.git
 cd autark
-python -m pip install -e ".[dev]"
+pip install -e ".[dev]"
 ```
 
-For local commands that run directly from source, keep `PYTHONPATH=src` in the command environment.
+This installs the `autark` CLI in your environment.
 
 ## Run the Prompt-Agent Demo
 
 ```bash
-PYTHONPATH=src python -m autark.cli.main run \
+autark run \
   --adapter prompt-agent \
   --corpus examples/prompt_agent/cases.json \
   --artifact-root examples/prompt_agent/artifacts \
@@ -47,7 +49,7 @@ Use dry-run while developing adapters, evaluators, proposers, and validation pol
 Only use `--commit` when you want accepted revisions written back to the artifact store:
 
 ```bash
-PYTHONPATH=src python -m autark.cli.main run \
+autark run \
   --adapter prompt-agent \
   --corpus examples/prompt_agent/cases.json \
   --artifact-root examples/prompt_agent/artifacts \
@@ -70,7 +72,7 @@ AUTARK cycle complete
 Use `--json` when scripts or CI need the machine-readable cycle report:
 
 ```bash
-PYTHONPATH=src python -m autark.cli.main run \
+autark run \
   --adapter prompt-agent \
   --corpus examples/prompt_agent/cases.json \
   --artifact-root examples/prompt_agent/artifacts \
@@ -92,47 +94,58 @@ AUTARK supports running the loop in separate phases:
 
 ```bash
 # Evaluate — run cases, score outputs, extract failure signals
-PYTHONPATH=src python -m autark.cli.main eval \
+autark eval \
   --adapter prompt-agent \
   --corpus examples/prompt_agent/cases.json \
   --artifact-root examples/prompt_agent/artifacts \
   --output-dir .autark/output
 
 # Propose — generate candidate changes from the saved eval state
-PYTHONPATH=src python -m autark.cli.main propose \
+autark propose \
   --adapter prompt-agent \
   --corpus examples/prompt_agent/cases.json \
   --artifact-root examples/prompt_agent/artifacts \
   --output-dir .autark/output
 
 # Validate — rerun and score proposed changes (dry-run by default)
-PYTHONPATH=src python -m autark.cli.main validate \
+autark validate \
   --adapter prompt-agent \
   --corpus examples/prompt_agent/cases.json \
   --artifact-root examples/prompt_agent/artifacts \
   --output-dir .autark/output
 
 # Audit — view the event log
-PYTHONPATH=src python -m autark.cli.main audit --output-dir .autark/output
+autark audit --output-dir .autark/output
 ```
 
 Use `--json` with any command for machine-readable output.
 
+## Alternative: Run from Source (No Install)
+
+If you prefer not to install the package, you can run directly with `PYTHONPATH=src`:
+
+```bash
+PYTHONPATH=src python -m autark.cli.main run \
+  --adapter prompt-agent \
+  --corpus examples/prompt_agent/cases.json \
+  --artifact-root examples/prompt_agent/artifacts \
+  --output-dir .autark/output
+```
+
 ## Run Tests
 
 ```bash
-PYTHONPATH=src pytest -q
+pytest -q
 ```
 
 ## Troubleshooting
 
 ### Import errors
 
-If Python cannot import `autark`, install the package in editable mode or include `PYTHONPATH=src`:
+If Python cannot import `autark`, install the package in editable mode:
 
 ```bash
-python -m pip install -e ".[dev]"
-PYTHONPATH=src pytest -q
+pip install -e ".[dev]"
 ```
 
 ### Missing corpus or artifact files

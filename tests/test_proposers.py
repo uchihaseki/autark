@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import sys
 
 import pytest
@@ -13,7 +12,13 @@ from autark.core.models import (
     Signal,
     Strategy,
 )
-from autark.proposers import ClaudeCodeProposer, DeterministicProposer, ExternalCommandProposer
+from autark.proposers import (
+    ClaudeCodeProposer,
+    DeterministicProposer,
+    ExternalCommandProposer,
+    PythonFunctionProposer,
+)
+from autark.proposers.cli_agent import CliAgentProposer, GeminiCliProposer
 
 
 def _make_signal() -> Signal:
@@ -164,3 +169,77 @@ def test_claude_code_proposer_cases_text_truncation() -> None:
     assert "case-1" in text
     assert "case-2" in text
     assert "case-9" not in text
+
+
+# ---- DeterministicProposer multi-signal ----
+
+def test_deterministic_proposer_propose_multi() -> None:
+    proposer = DeterministicProposer()
+    signals = [_make_signal()]
+    strategies = [_make_strategy()]
+    artifact = _make_artifact()
+    context = _make_context()
+    changes = proposer.propose_multi(signals, strategies, artifact, context)
+    assert len(changes) == 1
+    assert changes[0].artifact_id == "prompt.txt"
+
+
+# ---- PythonFunctionProposer ----
+
+def test_python_function_proposer() -> None:
+    from autark.core.models import CandidateChange
+
+    def custom_propose(signal, strategy, artifact, context):
+        return CandidateChange(
+            change_id="chg-custom",
+            artifact_id=signal.artifact_id,
+            operations=[{"operation": "append", "text": "Custom fix."}],
+            rationale="Custom rationale",
+            validation_plan=[],
+            metadata={"signal_id": signal.signal_id},
+        )
+
+    proposer = PythonFunctionProposer(custom_propose)
+    change = proposer.propose(_make_signal(), _make_strategy(), _make_artifact(), _make_context())
+    assert change.change_id == "chg-custom"
+    assert change.rationale == "Custom rationale"
+
+
+# ---- CliAgentProposer ----
+
+def test_cli_agent_proposer_parse_response_valid_json() -> None:
+    raw = '{"artifact_id": "a1", "operations": []}'
+    result = CliAgentProposer._parse_response(raw)
+    assert result == {"artifact_id": "a1", "operations": []}
+
+
+def test_cli_agent_proposer_parse_response_markdown_fence() -> None:
+    raw = '```json\n{"artifact_id": "a1", "operations": []}\n```'
+    result = CliAgentProposer._parse_response(raw)
+    assert result == {"artifact_id": "a1", "operations": []}
+
+
+def test_cli_agent_proposer_parse_response_fallback_regex() -> None:
+    raw = 'Here is the change: {"artifact_id": "a1", "rationale": "test"} done.'
+    result = CliAgentProposer._parse_response(raw)
+    assert result == {"artifact_id": "a1", "rationale": "test"}
+
+
+def test_cli_agent_proposer_parse_response_invalid_raises() -> None:
+    with pytest.raises(RuntimeError, match="Could not parse JSON"):
+        CliAgentProposer._parse_response("not json at all")
+
+
+def test_gemini_cli_proposer_builds_prompt() -> None:
+    proposer = GeminiCliProposer()
+    prompt = proposer._build_prompt(_make_signal(), _make_strategy(), _make_artifact(), _make_context())
+    assert "wrong_answer" in prompt
+    assert "Repair wrong answer" in prompt
+    assert "Required JSON Output" in prompt
+    assert "change_id" in prompt
+
+
+def test_gemini_cli_proposer_missing_cli_raises() -> None:
+    proposer = GeminiCliProposer(gemini_command="nonexistent-gemini-cli-xyz", timeout=2)
+    with pytest.raises(RuntimeError, match="CLI not found"):
+        proposer.propose(_make_signal(), _make_strategy(), _make_artifact(), _make_context())

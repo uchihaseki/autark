@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/shuo/autark/schemas/strategy.json",
+  "title": "Strategy",
+  "description": "A repair strategy that maps failure signals to concrete remediation instructions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["strategy_id", "name", "category"],
+  "properties": {
+    "strategy_id": {
+      "type": "string",
+      "description": "Unique identifier for this strategy."
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable strategy name."
+    },
+    "category": {
+      "type": "string",
+      "description": "Compatible signal type category."
+    },
+    "signals_match": {
+      "type": "array",
+      "description": "Regex patterns that match eligible signal categories.",
+      "items": {"type": "string"},
+      "default": []
+    },
+    "instructions": {
+      "type": "array",
+      "description": "Step-by-step repair instructions.",
+      "items": {"type": "string"},
+      "default": []
+    },
+    "constraints": {
+      "type": "object",
+      "description": "Constraints governing the repair.",
+      "default": {}
+    },
+    "validation": {
+      "type": "array",
+      "description": "Validation plan steps.",
+      "items": {"type": "string"},
+      "default": []
+    },
+    "preconditions": {
+      "type": "array",
+      "description": "Preconditions that must hold before applying this strategy.",
+      "items": {"type": "string"},
+      "default": []
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary metadata.",
+      "default": {}
+    }
+  }
+}

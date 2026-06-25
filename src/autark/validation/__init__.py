@@ -1,3 +1,21 @@
-from autark.validation.gate import MetadataScoreValidationGate, RerunValidationGate
+from autark.validation.gate import (
+    AllowedOperationGate,
+    CaseOutcomeComparison,
+    CompositeValidationGate,
+    MaxChangeSizeGate,
+    MetadataScoreValidationGate,
+    RerunValidationGate,
+    compare_case_outcomes,
+    format_validation_report,
+)
 
-__all__ = ["MetadataScoreValidationGate", "RerunValidationGate"]
+__all__ = [
+    "AllowedOperationGate",
+    "CaseOutcomeComparison",
+    "CompositeValidationGate",
+    "MaxChangeSizeGate",
+    "MetadataScoreValidationGate",
+    "RerunValidationGate",
+    "compare_case_outcomes",
+    "format_validation_report",
+]

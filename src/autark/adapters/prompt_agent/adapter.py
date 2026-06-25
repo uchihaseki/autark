@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 
 from autark.adapters.prompt_agent.artifact_store import PromptArtifactStore
 from autark.adapters.prompt_agent.corpus import PromptCaseProvider

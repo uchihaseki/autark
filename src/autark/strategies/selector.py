@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from autark.core.api import public_api
 from autark.core.models import Signal, Strategy
 
 
@@ -14,6 +15,7 @@ class SelectionResult:
     match_details: str = ""
 
 
+@public_api(since="0.2.0")
 class RegexStrategySelector:
     def __init__(self, strategies: list[Strategy] | None = None) -> None:
         self.strategies = strategies or []

@@ -30,10 +30,12 @@ The repository has progressed well beyond the initial MVP.
 - A runnable `prompt-agent` demo that works without RTD, AutoRTD, or an external LLM provider.
 - File/in-memory artifact stores with stage/commit/rollback semantics.
 - Validation gates and JSONL audit logging.
-- 31 unit/integration tests passing.
+- 83 unit/integration tests passing.
 - Complete open-source project infrastructure: README, LICENSE (MIT), CONTRIBUTING, SECURITY, CHANGELOG, CI config, GitHub issue/PR templates.
 - Project metadata in `pyproject.toml` (classifiers, keywords, URLs).
 - 8 documentation files covering architecture, quickstart, core concepts, adapter guide, external proposer contract, open-source roadmap, and a Chinese overview.
+- Published to TestPyPI (https://test.pypi.org/project/autark/0.2.0/).
+- Phase 3 evaluators (ExactMatch, Rubric, LLM Judge, Python Callback) and validation gates (Composite, MaxChangeSize, AllowedOperation, CaseOutcomeComparison) implemented and marked experimental.
 
 
 ## Positioning
@@ -148,7 +150,7 @@ Documentation improvements:
 - ✅ `docs/adapter-guide.md`.
 - ✅ `docs/external-proposer-contract.md`.
 
-### Phase 2 — Public API and Extension Model 🔄 **PARTIAL**
+### Phase 2 — Public API and Extension Model ✅ **DONE**
 
 Goal: make AUTARK easy to extend without reading all internals.
 
@@ -163,9 +165,9 @@ Deliverables:
 Important design decisions:
 
 - ✅ `0.2.x` public API defined (protocols, models, CLI).
-- [ ] Keep experimental APIs clearly marked.
+- ✅ Keep experimental APIs clearly marked.
 - ✅ Avoid provider-specific dependencies in the default install.
-- [x] Use extras for integrations (`autark[anthropic]`, `autark[dev]`).
+- ✅ Use extras for integrations (`autark[anthropic]`, `autark[dev]`).
 - ✅ `autark[dev]` extra exists.
 
 ### Phase 3 — Stronger Evaluation and Validation
@@ -324,7 +326,7 @@ Review checklist for new integrations:
 3. ✅ Make tests and demo pass from a clean clone.
 4. ✅ Add GitHub Actions CI.
 5. ✅ Add `docs/quickstart.md` and `docs/adapter-guide.md`.
-6. [ ] Publish to PyPI (TestPyPI first).
+6. ✅ Publish to PyPI (TestPyPI first).
 7. ✅ Add `CODE_OF_CONDUCT.md`.
 
 ### Medium Priority
@@ -338,7 +340,7 @@ Review checklist for new integrations:
 
 ### Later Priority
 
-1. [ ] Optional LLM judge integration.
+1. ✅ Optional LLM judge integration.
 2. ✅ Claude Code proposer integration implemented (needs real-environment testing).
 3. [ ] Parallel case execution.
 4. [ ] Flaky-run handling.
@@ -391,7 +393,7 @@ SECURITY.md
 - ✅ Proposals and validation decisions are auditable.
 - ✅ Phase 0 (repository hygiene) and Phase 1 (reliable MVP) are fully complete.
 - ✅ Phase 2 (public API, extension model) is substantially complete — schema files, adapter template, extras, and dev tooling in place.
-- [ ] Package can be installed from PyPI.
+- ✅ Package published to TestPyPI.
 - [ ] Release notes and compatibility expectations are clear.
 
 ## Success Metrics
@@ -407,13 +409,13 @@ Early project health can be measured by:
 
 ## Suggested Next Step
 
-Start with a `0.2.0` milestone focused on open-source readiness rather than new intelligence:
+The `0.2.0` milestone is complete. The next target is `0.3.0` — **Stronger Evaluation and Validation**:
 
-1. Public README and docs.
-2. CI and clean test workflow.
-3. Adapter guide and example template.
-4. Safer CLI output and JSON mode.
-5. External proposer contract.
-6. One additional realistic example beyond prompt-agent.
+1. Parallel case execution and repeat-run support for flaky agents.
+2. Multi-signal aggregation (multiple failing cases per proposal).
+3. Rollback tests for every artifact store.
+4. Export proposals without applying.
+5. At least one more realistic adapter example beyond prompt-agent.
+6. Formal PyPI release.
 
-This sequence will make AUTARK easier to trust, easier to try, and easier for outside contributors to extend.
+This will make AUTARK's improvement loop trustworthy for production use.

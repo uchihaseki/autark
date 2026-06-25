@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from autark.audit import JsonlEventLog
 from autark.artifacts import InMemoryArtifactStore
+from autark.audit import JsonlEventLog
 from autark.core.models import EvalCase, RunResult, Strategy
 from autark.evaluation import HeuristicEvaluator
 from autark.proposers import DeterministicProposer
@@ -64,7 +64,7 @@ class FakeAdapter:
         ]
 
     @classmethod
-    def from_json(cls, corpus_path: Path | None = None, output_dir: Path | None = None) -> "FakeAdapter":
+    def from_json(cls, corpus_path: Path | None = None, output_dir: Path | None = None) -> FakeAdapter:
         if not corpus_path:
             return cls(output_dir=output_dir)
         data = json.loads(corpus_path.read_text(encoding="utf-8"))

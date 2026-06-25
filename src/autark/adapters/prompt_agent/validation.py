@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from autark.core.models import EvalCase, RunResult
 from autark.adapters.prompt_agent.evaluator import PromptAgentEvaluator
 from autark.adapters.prompt_agent.runner import _run_prompt
+from autark.core.models import EvalCase, RunResult
 from autark.validation import RerunValidationGate
 
 

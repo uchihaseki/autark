@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/shuo/autark/schemas/validation_decision.json",
+  "title": "ValidationDecision",
+  "description": "The result of validating a candidate change against failing and holdout cases.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decision", "change_id", "artifact_id"],
+  "properties": {
+    "decision": {
+      "type": "string",
+      "description": "Decision: 'accepted', 'rejected', or 'needs_watch'."
+    },
+    "change_id": {
+      "type": "string",
+      "description": "The change that was validated."
+    },
+    "artifact_id": {
+      "type": "string",
+      "description": "The artifact the change targets."
+    },
+    "before_scores": {
+      "type": "object",
+      "description": "Scores before the change was applied.",
+      "additionalProperties": {"type": "number"},
+      "default": {}
+    },
+    "after_scores": {
+      "type": "object",
+      "description": "Scores after the change was applied.",
+      "additionalProperties": {"type": "number"},
+      "default": {}
+    },
+    "regression_results": {
+      "type": "array",
+      "description": "Per-case regression scores on holdout cases.",
+      "items": {"type": "object"},
+      "default": []
+    },
+    "reason": {
+      "type": "string",
+      "description": "Human-readable explanation for the decision.",
+      "default": ""
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary metadata.",
+      "default": {}
+    }
+  }
+}

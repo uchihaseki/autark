@@ -19,7 +19,6 @@ from autark.cli.main import (
 )
 from autark.core.models import CycleReport
 
-
 # ---- parser ----
 
 def test_parser_accepts_run_json() -> None:

@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import asyncio
 import json
+from collections import defaultdict
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from uuid import uuid4
 from typing import Any
+from uuid import uuid4
 
+from autark.core.api import public_api
 from autark.core.models import (
     ArtifactSnapshot,
     CandidateChange,
@@ -22,16 +25,22 @@ from autark.core.models import (
 from autark.core.protocols import Adapter
 
 
+@public_api(since="0.2.0")
 @dataclass(slots=True)
 class EngineConfig:
     adapter_name: str = ""
     review_mode: bool = False
     dry_run: bool = True
-    max_parallel_cases: int = 5
+    max_parallel_cases: int = 5   # Deprecated: use max_concurrency
+    max_concurrency: int = 5
+    parallel_cases: bool = False  # Opt-in: run cases concurrently
+    retry_count: int = 0          # Number of retries for flaky agents (0 = no retry)
+    retry_delay: float = 0.5      # Seconds between retries
     output_dir: str = ".autark/output"
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@public_api(since="0.2.0")
 class EvolutionEngine:
     def __init__(self, adapter: Adapter, config: EngineConfig | None = None) -> None:
         self.adapter = adapter
@@ -123,6 +132,36 @@ class EvolutionEngine:
     # Phase methods
     # ------------------------------------------------------------------
 
+    async def _run_one_case(
+        self,
+        runner,
+        evaluator,
+        case: EvalCase,
+        cycle_id: str,
+        audit_store,
+    ) -> tuple[EvalResult | None, str | None]:
+        """Run + evaluate one case, with retry."""
+        last_error = None
+        for attempt in range(self.config.retry_count + 1):
+            try:
+                run_result = await runner.run_case(case)
+                eval_result = await evaluator.evaluate(case, run_result)
+                audit_store.append_event({
+                    "event_type": "case_evaluated",
+                    "cycle_id": cycle_id,
+                    "case_id": case.case_id,
+                    "artifact_id": run_result.artifact_id,
+                    "status": eval_result.status,
+                    "scores": eval_result.scores,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                })
+                return eval_result, None
+            except Exception as exc:
+                last_error = f"case {getattr(case, 'case_id', '?')}: {exc}"
+                if attempt < self.config.retry_count:
+                    await asyncio.sleep(self.config.retry_delay)
+        return None, last_error
+
     async def run_eval(self, cycle_id: str | None = None) -> EvalReport:
         if cycle_id is None:
             cycle_id = f"cycle-{uuid4().hex[:8]}"
@@ -135,24 +174,28 @@ class EvolutionEngine:
         audit_store = self.adapter.audit_store()
 
         cases = case_provider.load_cases()
-        eval_results: list[EvalResult] = []
 
-        for case in cases:
-            try:
-                run_result = await runner.run_case(case)
-                eval_result = await evaluator.evaluate(case, run_result)
+        if self.config.parallel_cases and len(cases) > 1:
+            semaphore = asyncio.Semaphore(self.config.max_concurrency)
+
+            async def run_with_semaphore(case: EvalCase):
+                async with semaphore:
+                    return await self._run_one_case(runner, evaluator, case, cycle_id, audit_store)
+
+            results = await asyncio.gather(*[run_with_semaphore(c) for c in cases])
+        else:
+            results = []
+            for case in cases:
+                results.append(
+                    await self._run_one_case(runner, evaluator, case, cycle_id, audit_store)
+                )
+
+        eval_results: list[EvalResult] = []
+        for eval_result, error in results:
+            if error is not None:
+                errors.append(error)
+            elif eval_result is not None:
                 eval_results.append(eval_result)
-                audit_store.append_event({
-                    "event_type": "case_evaluated",
-                    "cycle_id": cycle_id,
-                    "case_id": case.case_id,
-                    "artifact_id": run_result.artifact_id,
-                    "status": eval_result.status,
-                    "scores": eval_result.scores,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                })
-            except Exception as exc:
-                errors.append(f"case {getattr(case, 'case_id', '?')}: {exc}")
 
         signals = signal_extractor.extract(eval_results, recent_signals=[])
         self._save_eval_state(cycle_id, eval_results, signals, cases)
@@ -181,12 +224,24 @@ class EvolutionEngine:
         artifact_store = self.adapter.artifact_store()
 
         selections = selector.select_all(signals)
+
+        # Group selections by artifact_id for multi-signal proposals
+        groups: dict[str, list[tuple[Signal, Strategy]]] = defaultdict(list)
+        for signal, strategy in selections:
+            groups[signal.artifact_id].append((signal, strategy))
+
         changes: list[CandidateChange] = []
 
-        for signal, strategy in selections:
-            artifact_text = artifact_store.load(signal.artifact_id)
-            failing_cases = [c for c in cases if c.case_id == signal.case_id]
-            holdout_cases = [c for c in cases if c.case_id != signal.case_id]
+        for artifact_id, pairs in groups.items():
+            artifact_text = artifact_store.load(artifact_id)
+            signals_group = [s for s, _ in pairs]
+            strategies_group = [st for _, st in pairs]
+
+            # Collect all failing case IDs for this artifact group
+            failing_case_ids = {s.case_id for s in signals_group}
+            failing_cases = [c for c in cases if c.case_id in failing_case_ids]
+            holdout_cases = [c for c in cases if c.case_id not in failing_case_ids]
+
             context = EvolutionContext(
                 cycle_id=cycle_id,
                 failing_cases=failing_cases,
@@ -194,13 +249,24 @@ class EvolutionEngine:
                 eval_results=eval_results,
                 metadata=self.config.metadata,
             )
-            change = proposer.propose(
-                signal,
-                strategy,
-                ArtifactSnapshot(signal.artifact_id, artifact_text),
-                context,
-            )
-            changes.append(change)
+
+            if hasattr(proposer, "propose_multi") and len(pairs) > 1:
+                multi_changes = proposer.propose_multi(
+                    signals_group,
+                    strategies_group,
+                    ArtifactSnapshot(artifact_id, artifact_text),
+                    context,
+                )
+                changes.extend(multi_changes)
+            else:
+                for signal, strategy in pairs:
+                    change = proposer.propose(
+                        signal,
+                        strategy,
+                        ArtifactSnapshot(artifact_id, artifact_text),
+                        context,
+                    )
+                    changes.append(change)
 
         self._save_proposals(changes)
         return changes

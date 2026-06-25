@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/shuo/autark/schemas/signal.json",
+  "title": "Signal",
+  "description": "A distilled failure signal extracted from one or more EvalResults.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["signal_id", "case_id", "artifact_id", "signal_type", "category", "evidence"],
+  "properties": {
+    "signal_id": {
+      "type": "string",
+      "description": "Unique identifier for this signal."
+    },
+    "case_id": {
+      "type": "string",
+      "description": "The case that produced this signal."
+    },
+    "artifact_id": {
+      "type": "string",
+      "description": "The artifact associated with the failure."
+    },
+    "signal_type": {
+      "type": "string",
+      "description": "Signal type: 'repair', 'optimize', 'innovate', or 'harden'."
+    },
+    "category": {
+      "type": "string",
+      "description": "Failure category: 'wrong_answer', 'missing_constraint', 'format_error', etc."
+    },
+    "evidence": {
+      "type": "string",
+      "description": "Evidence describing the failure."
+    },
+    "scores": {
+      "type": "object",
+      "description": "Score snapshot at the time the signal was extracted.",
+      "additionalProperties": {"type": "number"},
+      "default": {}
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary metadata.",
+      "default": {}
+    }
+  }
+}

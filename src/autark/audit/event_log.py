@@ -6,7 +6,10 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from autark.core.api import public_api
 
+
+@public_api(since="0.2.0")
 class JsonlEventLog:
     def __init__(self, path: str | Path) -> None:
         self.path = Path(path)

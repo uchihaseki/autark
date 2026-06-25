@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from autark.core.api import public_api
 
+
+@public_api(since="0.2.0")
 @dataclass(frozen=True, slots=True)
 class RubricDimension:
     name: str

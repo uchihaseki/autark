@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/shuo/autark/schemas/candidate_change.json",
+  "title": "CandidateChange",
+  "description": "A proposed change to an artifact, with operations, rationale, and validation plan.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["change_id", "artifact_id"],
+  "properties": {
+    "change_id": {
+      "type": "string",
+      "description": "Unique identifier for this change proposal."
+    },
+    "artifact_id": {
+      "type": "string",
+      "description": "The artifact this change targets."
+    },
+    "operations": {
+      "type": "array",
+      "description": "List of text operations to apply. Each is an object with an 'operation' key ('append' or 'replace') and a 'text' key.",
+      "items": {
+        "type": "object",
+        "required": ["operation"],
+        "properties": {
+          "operation": {"type": "string"},
+          "text": {"type": "string"},
+          "old": {"type": "string"},
+          "new": {"type": "string"}
+        }
+      },
+      "default": []
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Explanation of why this change is proposed.",
+      "default": ""
+    },
+    "validation_plan": {
+      "type": "array",
+      "description": "Steps to validate that the change is safe.",
+      "items": {"type": "string"},
+      "default": []
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary metadata including signal_id, strategy_id, before_scores, after_scores.",
+      "default": {}
+    }
+  }
+}
