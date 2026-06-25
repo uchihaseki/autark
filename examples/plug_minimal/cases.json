@@ -1,0 +1,29 @@
+{
+  "artifact_id": "prompt.txt",
+  "cases": [
+    {
+      "case_id": "add-001",
+      "input_text": "2 + 3",
+      "expected_output": "5",
+      "metadata": {}
+    },
+    {
+      "case_id": "add-002",
+      "input_text": "10 + 20",
+      "expected_output": "30",
+      "metadata": {}
+    },
+    {
+      "case_id": "sub-001",
+      "input_text": "5 - 3",
+      "expected_output": "2",
+      "metadata": {}
+    },
+    {
+      "case_id": "add-003",
+      "input_text": "100 + 200",
+      "expected_output": "300",
+      "metadata": {}
+    }
+  ]
+}

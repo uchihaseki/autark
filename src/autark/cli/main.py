@@ -11,10 +11,12 @@ from autark.adapters.prompt_agent import PromptAgentAdapter
 from autark.audit import JsonlEventLog
 from autark.core.engine import EngineConfig, EvolutionEngine
 from autark.core.models import CycleReport, EvalReport
+from autark.plug._discovery import discover as _discover_adapter
+from autark.plug._discovery import list_adapter_names as _list_adapter_names
 
 
 def _add_adapter_args(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--adapter", default="prompt-agent", choices=["prompt-agent", "fake"])
+    parser.add_argument("--adapter", default="prompt-agent", help="Adapter name (built-in: fake, prompt-agent; or a registered entry-point adapter)")
     parser.add_argument("--corpus", type=str, default="")
     parser.add_argument("--artifact-root", type=str, default="")
     parser.add_argument("--output-dir", type=str, default=".autark/output")
@@ -60,6 +62,9 @@ def build_parser() -> argparse.ArgumentParser:
     audit_parser.add_argument("--json", action="store_true", help="Print raw events as JSON")
     audit_parser.add_argument("--limit", type=int, default=0, help="Limit to last N events")
 
+    # ---- list-adapters ----
+    subparsers.add_parser("list-adapters", help="List all registered AUTARK adapters")
+
     return parser
 
 
@@ -98,7 +103,13 @@ def validate_args(args: argparse.Namespace) -> None:
         _existing_dir(args.artifact_root, "--artifact-root")
         return
 
-    raise ValueError(f"Unsupported adapter: {args.adapter}")
+    # Try discovery for third-party adapters registered via entry points.
+    try:
+        _discover_adapter(args.adapter)
+    except ValueError:
+        available = _list_adapter_names()
+        hint = f" Available: {', '.join(available)}." if available else ""
+        raise ValueError(f"Unknown adapter: {args.adapter}.{hint} Use --help or 'autark list-adapters' to see registered adapters.")
 
 
 def make_adapter(args: argparse.Namespace):
@@ -117,7 +128,18 @@ def make_adapter(args: argparse.Namespace):
             proposer_command=args.proposer_command or None,
             proposer_timeout=args.proposer_timeout,
         )
-    raise ValueError(f"Unsupported adapter: {args.adapter}")
+
+    # Third-party adapter via entry-point discovery.
+    # Instantiate with standard adapter constructor signature.
+    adapter_cls = _discover_adapter(args.adapter)
+    return adapter_cls(
+        corpus_path=Path(args.corpus) if args.corpus else None,
+        artifact_root=Path(args.artifact_root) if args.artifact_root else None,
+        output_dir=args.output_dir,
+        proposer_name=getattr(args, "proposer", "deterministic"),
+        proposer_command=getattr(args, "proposer_command", None) or None,
+        proposer_timeout=getattr(args, "proposer_timeout", 120.0),
+    )
 
 
 def format_phase_title(label: str) -> str:
@@ -287,6 +309,18 @@ async def _run_full_cycle(args: argparse.Namespace) -> int:
     return 0 if not report.errors else 1
 
 
+def _run_list_adapters(_args: argparse.Namespace) -> int:
+    names = _list_adapter_names()
+    if not names:
+        print("No adapters registered.")
+        print("Install a package with an 'autark.adapters' entry point, or use built-in adapters: fake, prompt-agent.")
+        return 0
+    print("Registered adapters:")
+    for name in names:
+        print(f"  - {name}")
+    return 0
+
+
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
@@ -302,6 +336,8 @@ async def dispatch(args: argparse.Namespace) -> int:
         return await _run_validate(args)
     if args.command == "audit":
         return _run_audit(args)
+    if args.command == "list-adapters":
+        return _run_list_adapters(args)
     return 1
 
 

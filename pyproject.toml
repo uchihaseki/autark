@@ -55,6 +55,10 @@ anthropic = [
 [project.scripts]
 autark = "autark.cli.main:main"
 
+[project.entry-points."autark.adapters"]
+fake = "autark.adapters.fake:FakeAdapter"
+prompt-agent = "autark.adapters.prompt_agent:PromptAgentAdapter"
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 
